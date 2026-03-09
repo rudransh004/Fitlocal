@@ -25,7 +25,7 @@ app.get('/api/health', (req, res) => {
   }
 }) */
 
-app.get('/api/gyms', async (requestAnimationFrame, res)=>{
+app.get('/api/gyms', async (req, res)=>{
   try {
     const result=await pool.query('SELECT id, name, address, ST_AsGeoJSON(location)::json as location FROM gyms');
     res.status(200).json(result.rows);
