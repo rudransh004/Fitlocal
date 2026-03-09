@@ -9,7 +9,7 @@ interface Gym {
   location: any;
 }
 
-const API_URL = 'http://localhost:5000/api/gyms';
+const API_URL = 'http://127.0.0.1:5005/api/gyms';
 
 export default function HomeScreen({ navigation }: any) {
   const [gyms, setGyms] = useState<Gym[]>([]);

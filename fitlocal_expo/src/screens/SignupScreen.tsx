@@ -1,11 +1,46 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SignupScreen({ navigation, onLogin }: any) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSignup = async () => {
+    if (!name || !email || !password) {
+      setErrorMsg('Please fill in all fields.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const response = await fetch('http://127.0.0.1:5005/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMsg(data.error || 'Registration failed.');
+        setLoading(false);
+        return;
+      }
+
+      onLogin(data.user);
+    } catch (error) {
+      setErrorMsg('Network error. Is the server running?');
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -18,6 +53,9 @@ export default function SignupScreen({ navigation, onLogin }: any) {
       </View>
 
       <View style={styles.formContainer}>
+        
+        {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+
         <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={20} color="#888" style={styles.icon} />
           <TextInput 
@@ -55,8 +93,16 @@ export default function SignupScreen({ navigation, onLogin }: any) {
           />
         </View>
 
-        <TouchableOpacity style={styles.signupButton} onPress={onLogin}>
-          <Text style={styles.signupButtonText}>Create Account</Text>
+        <TouchableOpacity 
+          style={styles.signupButton} 
+          onPress={handleSignup}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#121212" />
+          ) : (
+            <Text style={styles.signupButtonText}>Create Account</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -76,6 +122,7 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 36, fontWeight: '900', color: '#ffffff', letterSpacing: -1, marginBottom: 10 },
   subtitle: { fontSize: 16, color: '#A0A0A0' },
   formContainer: { paddingHorizontal: 30 },
+  errorText: { color: '#ff3b30', marginBottom: 15, textAlign: 'center', fontWeight: 'bold' },
   inputContainer: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#1E1E1E', borderRadius: 12,

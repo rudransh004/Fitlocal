@@ -31,7 +31,7 @@ function AuthStack({ onLogin }: any) {
   );
 }
 
-// 2. The Main Feed Stack (from before)
+// 2. The Main Feed Stack
 function FeedStackNavigator() {
   return (
     <Stack.Navigator
@@ -50,17 +50,18 @@ function FeedStackNavigator() {
 
 // 3. The Master App Component
 export default function App() {
-  // This state controls what the user sees! Starts as false (logged out).
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // --- UPGRADE: We now store the whole User Object instead of just a True/False boolean! ---
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
       <NavigationContainer>
         
-        {/* If NOT authenticated, show the Login Screens. If YES, show the Main App Tabs! */}
-        {!isAuthenticated ? (
-          <AuthStack onLogin={() => setIsAuthenticated(true)} />
+        {/* If there is NO user data, show the Auth Stack */}
+        {!currentUser ? (
+          // When a user logs in, we catch the data and save it into state!
+          <AuthStack onLogin={(userData: any) => setCurrentUser(userData)} />
         ) : (
           <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -91,7 +92,7 @@ export default function App() {
                 headerTintColor: '#ffffff', headerTitleStyle: { fontWeight: '900', fontSize: 26, letterSpacing: -1 }
               }} 
             />
-            {/* Pass an onLogout function to the ProfileScreen so users can actually log out! */}
+            {/* --- UPGRADE: We pass the currentUser data directly into the ProfileScreen! --- */}
             <Tab.Screen 
               name="Profile" 
               options={{ 
@@ -100,7 +101,7 @@ export default function App() {
                 headerTintColor: '#ffffff', headerTitleStyle: { fontWeight: '900', fontSize: 26, letterSpacing: -1 }
               }} 
             >
-              {props => <ProfileScreen {...props} onLogout={() => setIsAuthenticated(false)} />}
+              {props => <ProfileScreen {...props} user={currentUser} onLogout={() => setCurrentUser(null)} />}
             </Tab.Screen>
           </Tab.Navigator>
         )}

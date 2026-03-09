@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileScreen({ onLogout }: any) {
+// Notice we are passing { user, onLogout } right here!
+export default function ProfileScreen({ user, onLogout }: any) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       
@@ -11,8 +12,10 @@ export default function ProfileScreen({ onLogout }: any) {
         <View style={styles.avatarPlaceholder}>
           <Ionicons name="person" size={50} color="#555" />
         </View>
-        <Text style={styles.name}>Fitness Enthusiast</Text>
-        <Text style={styles.email}>user@fitlocal.com</Text>
+        
+        {/* Here is the magic: It looks for user.name and user.email! */}
+        <Text style={styles.name}>{user?.name || 'Fitness Enthusiast'}</Text>
+        <Text style={styles.email}>{user?.email || 'user@fitlocal.com'}</Text>
         
         <TouchableOpacity style={styles.editButton}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
   menuIcon: { marginRight: 15 },
   menuText: { fontSize: 16, color: '#ffffff', fontWeight: '500' },
   logoutButton: {
-    backgroundColor: '#ff3b30', // A standard destructive red color
+    backgroundColor: '#ff3b30',
     padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 20,
   },
   logoutText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' }
